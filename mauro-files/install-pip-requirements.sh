@@ -28,18 +28,11 @@ pip install -r "$COMFY_ROOT/custom_nodes/rgthree-comfy/requirements.txt"
 pip install --upgrade requests
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
-  pip install triton
-  pip install ninja packaging
+    pip install triton
+    pip install ninja packaging
 fi
-
-# temporary fix from https://github.com/welltop-cn/ComfyUI-TeaCache/issues/178
-ln -sf "$SCRIPT_DIR/files/nodes.py" "$COMFY_ROOT/custom_nodes/ComfyUI-TeaCache/nodes.py"
-
-mkdir -p "$COMFY_ROOT/custom_nodes/comfyui-frame-interpolation/ckpts/rife"
-FILE="$COMFY_ROOT/custom_nodes/comfyui-frame-interpolation/ckpts/rife/rife47.pth"
-if [ ! -f "$FILE" ]; then
-  wget -O "$FILE" https://huggingface.co/jasonot/mycomfyui/resolve/main/rife47.pth
-fi
+# pip install sageattention==1.0.6
+# pip install "https://huggingface.co/Kijai/PrecompiledWheels/resolve/main/sageattention-2.2.0-cp312-cp312-linux_x86_64.whl"
 
 echo -e "${GREEN}All commands executed successfully.${NC}"
 exit 0
