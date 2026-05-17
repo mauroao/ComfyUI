@@ -1,0 +1,14 @@
+.git/
+.claude/
+.vscode/
+output/
+temp/
+user/
+.venv/
+models/checkpoints/
+models/loras/
+models/diffusion_models/
+models/text_encoders/
+models/clip_vision/
+models/vae/
+models/upscale_models/

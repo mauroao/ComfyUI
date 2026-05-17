@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+trap 'echo "ERROR: Command failed at line $LINENO with exit code $?" >&2; exit 1' ERR
+
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+if [[ "$(uname -s)" != "Darwin" ]]; then
+    echo -e "${RED}[ERROR] This script must run on macOS only.${NC}"
+    exit 1
+fi
+
+if [[ -z "${VIRTUAL_ENV:-}" ]]; then
+    echo -e "${RED}[ERROR] No virtual environment is active.${NC}"
+    echo ""
+    echo "Activate a venv before running this script:"
+    echo "  source /path/to/your/.venv/bin/activate"
+    echo ""
+    exit 1
+fi
+
+echo -e "${GREEN}[OK] Environment: macOS${NC}"
+echo -e "${GREEN}[OK] venv active: ${VIRTUAL_ENV}${NC}"
+echo ""
+
+pip install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu
+
+echo -e "${GREEN}All commands executed successfully.${NC}"
+exit 0
