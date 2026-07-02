@@ -5,6 +5,8 @@ COMFY_ROOT="$(dirname "$SCRIPT_DIR")"
 "$SCRIPT_DIR/scripts/install-aria-ffmpeg.sh" || exit 1
 source "$SCRIPT_DIR/scripts/common.sh"
 
+download_base_models
+
 # SDXL checkpoint
 cd "$COMFY_ROOT/models/checkpoints/"
 download_file_v2 "juggernautXL_ragnarokBy.safetensors" "https://civitai.com/api/download/models/1759168?type=Model&format=SafeTensor&size=full&fp=fp16&token=${RP_TOKEN}"
