@@ -41,7 +41,7 @@ check_python() {
         return
     fi
     local ver
-    ver=$("$PYTHON" --version 2>&1 | grep -oP '\d+\.\d+\.\d+' | head -n1) || true
+    ver=$("$PYTHON" --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1) || true
     if [ -z "$ver" ]; then
         FOUND+=("not found")
         STATUS+=("FAIL")
@@ -110,7 +110,7 @@ check_sage() {
         return
     fi
     local ver
-    ver=$(pip show sageattention 2>/dev/null | grep -oP '^Version:\s*\K[\d.]+') || true
+    ver=$(pip show sageattention 2>/dev/null | sed -n -E 's/^Version:[[:space:]]*([0-9.]+).*/\1/p') || true
     if [ -z "$ver" ]; then
         FOUND+=("not found")
         STATUS+=("FAIL")
@@ -128,7 +128,7 @@ check_cuda() {
     NAMES+=("CUDA Toolkit")
     REQUIRED+=("$required")
     local ver
-    ver=$(nvcc --version 2>/dev/null | grep -oP 'release \K[\d.]+' | head -n1) || true
+    ver=$(nvcc --version 2>/dev/null | sed -n -E 's/.*release ([0-9.]+).*/\1/p' | head -n1) || true
     if [ -z "$ver" ]; then
         FOUND+=("not found")
         STATUS+=("FAIL")
