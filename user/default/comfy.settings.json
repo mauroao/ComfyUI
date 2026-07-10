@@ -215,5 +215,7 @@
             }
         }
     },
-    "Comfy.Queue.History.Expanded": false
+    "Comfy.Queue.History.Expanded": false,
+    "Comfy.InstalledVersion": "1.43.18",
+    "Comfy.TutorialCompleted": true
 }
