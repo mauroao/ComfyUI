@@ -10,10 +10,10 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 COMFY_ROOT="$(dirname "$SCRIPT_DIR")"
 
 clone_node() {
-    local url="$1"
-    local dir="${2:-$(basename "$url" .git)}"
-    rm -rf "$dir"
-    git clone "$url" "$dir"
+  local url="$1"
+  local dir="${2:-$(basename "$url" .git)}"
+  rm -rf "$dir"
+  git clone "$url" "$dir"
 }
 
 cd "$COMFY_ROOT/custom_nodes"
@@ -27,6 +27,7 @@ clone_node https://github.com/city96/ComfyUI-GGUF ComfyUI-GGUF
 clone_node https://github.com/welltop-cn/ComfyUI-TeaCache
 clone_node https://github.com/yolain/ComfyUI-Easy-Use
 clone_node https://github.com/rgthree/rgthree-comfy.git
+clone_node https://github.com/ltdrdata/ComfyUI-Impact-Pack comfyui-impact-pack
 
 # temporary fix from https://github.com/welltop-cn/ComfyUI-TeaCache/issues/178
 ln -sf "$SCRIPT_DIR/files/nodes.py" "$COMFY_ROOT/custom_nodes/ComfyUI-TeaCache/nodes.py"
@@ -34,7 +35,7 @@ ln -sf "$SCRIPT_DIR/files/nodes.py" "$COMFY_ROOT/custom_nodes/ComfyUI-TeaCache/n
 mkdir -p "$COMFY_ROOT/custom_nodes/comfyui-frame-interpolation/ckpts/rife"
 FILE="$COMFY_ROOT/custom_nodes/comfyui-frame-interpolation/ckpts/rife/rife47.pth"
 if [ ! -f "$FILE" ]; then
-    wget -O "$FILE" https://huggingface.co/jasonot/mycomfyui/resolve/main/rife47.pth
+  wget -O "$FILE" https://huggingface.co/jasonot/mycomfyui/resolve/main/rife47.pth
 fi
 
 echo -e "${GREEN}All commands executed successfully.${NC}"
