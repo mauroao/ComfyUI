@@ -2,10 +2,8 @@
     "Comfy.Minimap.Visible": false,
     "Comfy.LinkRenderMode": 1,
     "Comfy.RightSidePanel.IsOpen": false,
-    "Comfy.Templates.SortBy": "default",
-    "Comfy.Templates.SelectedModels": [
-        "Wan2.2"
-    ],
+    "Comfy.Templates.SortBy": "popular",
+    "Comfy.Templates.SelectedModels": [],
     "Comfy.Templates.SelectedRunsOn": [
         "ComfyUI"
     ],
