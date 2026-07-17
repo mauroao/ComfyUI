@@ -3,17 +3,24 @@
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 COMFY_ROOT="$(dirname "$SCRIPT_DIR")"
 
-if [[ "$(uname)" == "Darwin" ]]; then
-    cd "$COMFY_ROOT"
-    python main.py --listen
-    exit 0
-fi
-
 # Detect environment via WSL_DISTRO_NAME (set by WSL on every session)
 if [[ -n "${WSL_DISTRO_NAME:-}" ]]; then
     IS_WSL=true
 else
     IS_WSL=false
+fi
+IS_MACOS=false
+[[ "$(uname)" == "Darwin" ]] && IS_MACOS=true
+
+if { $IS_WSL || $IS_MACOS; } && [[ -z "${VIRTUAL_ENV:-}" ]]; then
+    echo "[startup] ERROR: .venv is not activated. Run 'source .venv/bin/activate' before running this script." >&2
+    exit 1
+fi
+
+if $IS_MACOS; then
+    cd "$COMFY_ROOT"
+    python main.py --listen
+    exit 0
 fi
 
 if $IS_WSL; then
