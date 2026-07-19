@@ -31,6 +31,15 @@ download_file_v2 "wan22_BouncyWalk02_LowWan2_2-000048.safetensors" "https://civi
 download_file_v2 "wan22_BounceHighWan2_2.safetensors" "https://civitai.com/api/download/models/2191217?type=Model&format=SafeTensor&token=${RP_TOKEN}"
 download_file_v2 "wan22_BounceLowWan2_2.safetensors" "https://civitai.com/api/download/models/2191270?type=Model&format=SafeTensor&token=${RP_TOKEN}"
 
+download_file_v2 "wan22-n1ppl3suck1ng-I2V-34epoc-high-k3nk.safetensors" "https://civitai.red/api/download/models/2221972?fileId=2115024&token=${RP_TOKEN}"
+download_file_v2 "wan22-n1ppl3suck1ng-I2V-48epoc-low-k3nk.safetensors" "https://civitai.red/api/download/models/2218776?fileId=2114981&token=${RP_TOKEN}"
+
+download_file_v2 "wan22-bbcdeepthroat-115epoc-high-k3nk.safetensors" "https://civitai.red/api/download/models/2370687?fileId=2261453&token=${RP_TOKEN}"
+download_file_v2 "wan22-bbcdeepthroat-155epoc-low-720-k3nk.safetensors" "https://civitai.red/api/download/models/2370744?fileId=2261505&token=${RP_TOKEN}"
+
+download_file_v2 "wan22-zoom-reveal-400epoc-high-k3nk.safetensors" "https://civitai.red/api/download/models/2300902?fileId=2191884&token=${RP_TOKEN}"
+download_file_v2 "wan22-zoom-reveal-295epoc-low-k3nk.safetensors" "https://civitai.red/api/download/models/2300900?fileId=2191872&token=${RP_TOKEN}"
+
 download_file "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors" "https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors"
 download_file "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors" "https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors"
 
