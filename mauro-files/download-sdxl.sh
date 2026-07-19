@@ -18,6 +18,11 @@ cd "$COMFY_ROOT/models/loras/"
 download_file_hf_private "s3xyv3n3r4_sdxl_v1-000008.safetensors" "https://huggingface.co/mauroao/lora_sdxl_s3xyv3n3r4/resolve/main/s3xyv3n3r4_sdxl_v1-000008.safetensors"
 download_file_hf_private "sdxl_putr1c1nt4-000010.safetensors" "https://huggingface.co/mauroao/lora_sdxl_putr1c1nt4/resolve/main/model/sdxl_putr1c1nt4-000010.safetensors"
 
+# Loras from civitai
+download_file_v2 "sdxl_Big_Saggy_Breasts_SDXL.safetensors" "https://civitai.red/api/download/models/611522?fileId=526550&token=${RP_TOKEN}"
+download_file_v2 "sdxl_Skinny_Macromastia-000007.safetensors" "https://civitai.red/api/download/models/857579?fileId=767072&token=${RP_TOKEN}"
+#download_file_v2 "" "&token=${RP_TOKEN}"
+
 download_file "sdxl_lightning_8step_lora.safetensors" "https://huggingface.co/ByteDance/SDXL-Lightning/resolve/main/sdxl_lightning_8step_lora.safetensors"
 
 echo -e "${GREEN}All downloads completed successfully.${NC}"
