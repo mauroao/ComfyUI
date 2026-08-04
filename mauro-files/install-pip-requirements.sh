@@ -25,6 +25,7 @@ pip install -r "$COMFY_ROOT/custom_nodes/ComfyUI-TeaCache/requirements.txt"
 pip install -r "$COMFY_ROOT/custom_nodes/ComfyUI-Easy-Use/requirements.txt"
 pip install -r "$COMFY_ROOT/custom_nodes/rgthree-comfy/requirements.txt"
 pip install -r "$COMFY_ROOT/custom_nodes/comfyui-impact-pack/requirements.txt"
+pip install -r "$COMFY_ROOT/custom_nodes/comfyui-impact-subpack/requirements.txt"
 
 pip install --upgrade requests
 
