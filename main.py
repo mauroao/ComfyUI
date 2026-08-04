@@ -385,13 +385,8 @@ def prompt_worker(q, server_instance):
 
             current_time = time.perf_counter()
             execution_time = current_time - execution_start_time
-
-            # Log Time in a more readable way after 10 minutes
-            if execution_time > 600:
-                execution_time = time.strftime("%H:%M:%S", time.gmtime(execution_time))
-                logging.info(f"Prompt executed in {execution_time}", extra={'color': 'green'})
-            else:
-                logging.info("Prompt executed in {:.2f} seconds".format(execution_time), extra={'color': 'green'})
+            execution_time = time.strftime("%H:%M:%S", time.gmtime(execution_time))
+            logging.info(f"Prompt executed in {execution_time}", extra={'color': 'green'})
 
             if not asset_seeder.is_disabled():
                 paths = _collect_output_absolute_paths(e.history_result)

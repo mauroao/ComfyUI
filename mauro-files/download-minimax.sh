@@ -13,6 +13,7 @@ download_file "minimax_h3_audio_vae_fp32.safetensors" "https://huggingface.co/Co
 # Diffusion Models
 cd "$COMFY_ROOT/models/diffusion_models/"
 download_file "minimax_h3_fl2va_pruned_int8_convrot.safetensors" "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors"
+download_file "minimax_h3_fl2va_pruned_fp8_scaled.safetensors" "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_fl2va_pruned_fp8_scaled.safetensors"
 
 # Text Encoders
 cd "$COMFY_ROOT/models/text_encoders/"
