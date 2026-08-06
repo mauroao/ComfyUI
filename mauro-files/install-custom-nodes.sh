@@ -13,7 +13,7 @@ clone_node() {
   local url="$1"
   local dir="${2:-$(basename "$url" .git)}"
   rm -rf "$dir"
-  git clone "$url" "$dir"
+  git clone --depth 1 "$url" "$dir"
 }
 
 cd "$COMFY_ROOT/custom_nodes"

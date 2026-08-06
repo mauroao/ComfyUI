@@ -36,5 +36,11 @@ fi
 # pip install sageattention==1.0.6
 # pip install "https://huggingface.co/Kijai/PrecompiledWheels/resolve/main/sageattention-2.2.0-cp312-cp312-linux_x86_64.whl"
 
+# Drop the workflow-templates gallery media (sample images/videos for the UI's
+# built-in Templates browser) — not used since we ship our own tracked workflows.
+# Must happen in this same layer/process, not a later Dockerfile RUN, otherwise
+# the bytes stay committed in this layer regardless (Docker layers are immutable).
+rm -rf /usr/local/lib/python3*/dist-packages/comfyui_workflow_templates_media_*
+
 echo -e "${GREEN}All commands executed successfully.${NC}"
 exit 0

@@ -1,4 +1,4 @@
-TAG = mauroao/runpod-comfy:0.1.13
+TAG = mauroao/runpod-comfy:0.1.14
 
 docker-build:
 	docker build -t $(TAG) -f Dockerfile ..

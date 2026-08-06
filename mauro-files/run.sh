@@ -12,6 +12,15 @@ fi
 IS_MACOS=false
 [[ "$(uname)" == "Darwin" ]] && IS_MACOS=true
 
+# WSL_DISTRO_NAME isn't propagated into containers, but the WSL2 kernel string is
+# (containers share the host kernel) — used only to gate --disable-pinned-memory
+# below, since cudaHostRegister() is unreliable under WSL2 regardless of whether
+# we're running bare-metal or inside a container on top of it.
+IS_WSL_KERNEL=false
+case "$(uname -r)" in
+    *microsoft*) IS_WSL_KERNEL=true ;;
+esac
+
 if { $IS_WSL || $IS_MACOS; } && [[ -z "${VIRTUAL_ENV:-}" ]]; then
     echo "[startup] ERROR: .venv is not activated. Run 'source .venv/bin/activate' before running this script." >&2
     exit 1
@@ -46,6 +55,10 @@ cd "$COMFY_ROOT"
 
 if $IS_WSL; then
     python main.py --disable-pinned-memory --use-sage-attention
+elif $IS_WSL_KERNEL; then
+    # Container running on a WSL2 host (Docker Desktop) — same pinned-memory
+    # bug as bare-metal WSL, but still needs --listen since it's a container.
+    python main.py --listen --use-sage-attention --disable-pinned-memory
 else
     python main.py --listen --use-sage-attention
 fi

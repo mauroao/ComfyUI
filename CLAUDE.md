@@ -36,10 +36,13 @@ Everything else (`comfy/`, `comfy_api/`, `comfy_execution/`, `comfy_extras/`, `a
 - Launch with the same `mauro-files/run.sh` — Darwin branch runs `python main.py --listen` (no SageAttention, it's CUDA-only).
 
 ### 3. RunPod Docker image (heavy video generation, higher resolutions)
-- Built/pushed via `mauro-files/Makefile` (`make -C mauro-files docker-build` / `docker-push`, image tag `mauroao/runpod-comfy`) and `mauro-files/Dockerfile` (base `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`).
+- Built/pushed via `mauro-files/Makefile` (`make -C mauro-files docker-build` / `docker-push`, image tag `mauroao/runpod-comfy:0.1.14`) and `mauro-files/Dockerfile` (base `runpod/pytorch:1.1.0-cu1281-torch280-ubuntu2404`).
 - No venv — system Python inside the container. Image build runs `install-custom-nodes.sh` + `install-pip-requirements.sh`.
 - Same `run.sh` "else" branch: sets `AIOHTTP_NO_SENDFILE=1`, runs `python main.py --listen --use-sage-attention`.
 - Models are pulled at container runtime via the `download-*.sh` scripts, not baked into the image.
+- **Previous image pushed: `0.1.13` on 2026-04-04** (confirmed via Docker Hub), ~4 months and 700+ upstream commits stale by 2026-08-05 — that's why the base image was bumped to `1.1.0` and the tag to `0.1.14` (same CUDA 12.8.1 / torch 2.8.0 pins, deliberately not moving to CUDA 13 yet).
+  - Upstream ComfyUI added a new hard pip dependency, `comfy-kitchen` (currently pinned `==0.2.26` in `requirements.txt`), which provides the fp8/int8/NVFP4 quantized tensor-core kernels used by newer model releases (incl. MiniMax H3, see below). `install-pip-requirements.sh` already installs it automatically via `pip install -r requirements.txt` — no script change needed.
+  - Remember to bump `mauro-files/Makefile`'s `TAG` again on the *next* rebuild after this one, so `docker-push` doesn't silently overwrite `0.1.14`.
 
 ## Model download scripts (`mauro-files/download-*.sh`)
 
@@ -52,6 +55,18 @@ Env vars required: `RP_TOKEN` (Civitai API token) for anything from civitai.com/
 - `download-wan21.sh` — WAN 2.1 base models + LoRAs for the `wan-2.1-*` workflows.
 - `download-wan22.sh` — WAN 2.2 base models + LoRAs (incl. SVI v2 PRO) for the `wan-2.2-*` workflows.
 - `download-minimax.sh` — MiniMax H3 VAE/diffusion/text-encoder models for `video_minimax_h3_i2v`.
+
+## RunPod GPU recommendations per video workflow
+
+Model formats differ across the tracked video workflows, which changes which RunPod GPU class makes sense. General rule: fp8 needs Ada Lovelace or newer (RTX 40xx/L40S/RTX 50xx/H100/B-series all qualify — Ampere/A100 has no native fp8 tensor cores and will fall back to a slower path); NVFP4 specifically only gets native tensor-core acceleration on Blackwell (RTX 50xx, RTX PRO 6000 Blackwell, B200/B300 — compute capability sm_120). On older architectures NVFP4 still works (comfy-kitchen/`comfy/quant_ops.py` has a software stochastic-rounding fallback) but slower, with the same VRAM footprint.
+
+- **`wan-2.1-T2V-768.json`, `wan-2.1-T2V-768-v2.json`, `wan-2.1-I2V-768.json`** — single 14B diffusion model in `fp8_e4m3fn` + UMT5-XXL fp8 text encoder. Fits comfortably on a 24GB card. Recommended: **RTX 4090 (24GB)**; RTX 5090 (32GB) if it's cheap/available for extra headroom with LoRAs stacked.
+- **`wan-2.2-I2V-768-fp8.json`, `wan-2.2-FLF2V-768-fp8.json`** — WAN 2.2 MoE-style dual model (separate high-noise/low-noise 14B `fp8_scaled` checkpoints, swapped sequentially, not both resident at once) + same text encoder/VAE. Similar peak VRAM to 2.1 but more headroom is safer given the extra LoRA (lightx2v 4-step). Recommended: **RTX 4090 (24GB)** minimum, **RTX 5090 (32GB)** preferred.
+- **`wan-2.2-SVI-v2.json`** — same dual-model base plus the Stable Video Infinity v2 PRO LoRAs for long-form/extended video generation, which keeps more frame context resident and raises peak VRAM meaningfully above the plain I2V workflow. Recommended: **RTX 5090 (32GB)**, or **L40S (48GB)** for longer clips/higher batch.
+- **`video_minimax_h3_i2v.json`** — **requires a fresh Docker image.** MiniMax H3 support landed in upstream ComfyUI core on 2026-07-31/08-03 (`comfy_extras/nodes_minimax_h3.py`, `comfy/ldm/minimax/vae.py`, etc. — commits #15167/#15224/#15227), months after the `0.1.13` image (2026-04-04) was built. The current pushed image predates this node entirely and will fail to load the workflow (unrecognized node types) until rebuilt from current `master`. By far the heaviest workflow otherwise: `int8_convrot` diffusion model + a **32B-parameter Qwen3VL text encoder quantized to NVFP4** (`qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors`) + separate video/audio VAEs. The 32B NVFP4 text encoder alone is ~16GB+ of weights before activations, VAEs, and the diffusion model are even loaded. This needs both a Blackwell GPU (for native NVFP4 throughput) and a large VRAM pool. Recommended: **RTX PRO 6000 Blackwell (96GB)** as the sweet spot; **B200/B300** if throughput matters more than cost. A 32GB RTX 5090 is Blackwell (fast NVFP4) but likely too tight on VRAM once the text encoder, diffusion model, and both VAEs are resident together — worth testing with `--reserve-vram`/model offload before committing to it for production runs.
+- **`sdxl.json`, `sdxl_face_correction.json`** — not video, but for reference: SDXL + Impact-Pack FaceDetailer is light by comparison, any 16GB+ Ada/Ampere card is fine.
+
+**Why this matters for the fork specifically**: `mauro-files/run.sh` and `run-reserve-vram.sh` always pass `--use-sage-attention`, and SageAttention 2.2.0 (built via `mauro-files/install-sageattention.sh`) targets CUDA/Ada-class kernels — if a future workflow ever gets tested on non-Ada architectures on RunPod (e.g. an A100), confirm SageAttention still builds/runs there before assuming the same launch flags apply.
 
 ## Custom nodes
 
