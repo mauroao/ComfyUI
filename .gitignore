@@ -1,8 +1,8 @@
 __pycache__/
 *.py[cod]
 /output/
-/input/
-!/input/example.png
+/input/*
+!/input/.keepit
 /models/
 /temp/
 /custom_nodes/
@@ -28,3 +28,4 @@ web_custom_versions/
 filtered-openapi.yaml
 uv.lock
 .comfy_environment
+/.playwright-mcp/
