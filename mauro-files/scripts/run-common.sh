@@ -1,8 +1,16 @@
 #!/bin/bash
-# TEMPORARY: same as run.sh but with --reserve-vram 2, for testing OOM fixes on MiniMax H3.
+# Shared skeleton for mauro-files/run*.sh launchers — detects the environment
+# (WSL2 bare metal, WSL2-hosted container, macOS, RunPod/Linux container),
+# pre-warms Triton, then launches ComfyUI with the per-environment base flags
+# plus whatever EXTRA_ARGS the calling wrapper set.
+#
+# Not meant to be run directly. A wrapper script sets EXTRA_ARGS (a bash array
+# of extra `python main.py` flags — use EXTRA_ARGS=() for none) and any extra
+# env vars it needs, then does:
+#   source "$SCRIPT_DIR/scripts/run-common.sh"
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-COMFY_ROOT="$(dirname "$SCRIPT_DIR")"
+COMFY_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
 # Detect environment via WSL_DISTRO_NAME (set by WSL on every session)
 if [[ -n "${WSL_DISTRO_NAME:-}" ]]; then
@@ -29,7 +37,7 @@ fi
 
 if $IS_MACOS; then
     cd "$COMFY_ROOT"
-    python main.py --listen --reserve-vram 2
+    python main.py --listen "${EXTRA_ARGS[@]}"
     exit 0
 fi
 
@@ -55,11 +63,11 @@ print('[startup] Triton pre-warm OK')
 cd "$COMFY_ROOT"
 
 if $IS_WSL; then
-    python main.py --disable-pinned-memory --use-sage-attention --reserve-vram 2
+    python main.py --disable-pinned-memory --use-sage-attention "${EXTRA_ARGS[@]}"
 elif $IS_WSL_KERNEL; then
     # Container running on a WSL2 host (Docker Desktop) — same pinned-memory
     # bug as bare-metal WSL, but still needs --listen since it's a container.
-    python main.py --listen --use-sage-attention --reserve-vram 2 --disable-pinned-memory
+    python main.py --listen --use-sage-attention --disable-pinned-memory "${EXTRA_ARGS[@]}"
 else
-    python main.py --listen --use-sage-attention --reserve-vram 2
+    python main.py --listen --use-sage-attention "${EXTRA_ARGS[@]}"
 fi
