@@ -84,9 +84,11 @@ The script also symlinks `mauro-files/files/nodes.py` over ComfyUI-TeaCache's ow
 Tracked in git deliberately (see `.gitignore` change above), organized into subfolders by media type:
 
 - `image/`: `sdxl.json`, `sdxl_face_correction.json`, `qwen_image_edit_2509.json`
-- `video/`: `minimax_h3_i2v_runpod.json`, `minimax_h3_i2v_wsl.json`, `wan-2.1-T2V-768.json`, `wan-2.1-T2V-768-v2.json`, `wan-2.1-I2V-768.json`, `wan-2.2-I2V-768-fp8.json`, `wan-2.2-FLF2V-768-fp8.json`, `wan-2.2-SVI-v2.json`
+- `video/`: `minimax_h3_i2v_runpod.json`, `minimax_h3_i2v_wsl.json`, `wan-2.1-T2V-768.json`, `wan-2.1-T2V-768-v2.json`, `wan-2.1-I2V-768.json`, `wan-2.2-I2V-768-fp8.json`, `wan-2.2-FLF2V-768-fp8.json`, `wan-2.2-SVI-v2.json`, `video_upscale_1080p.json`
 
 `minimax_h3_i2v_runpod.json` is the stock MiniMax H3 workflow (int8 diffusion model + NVFP4 text encoder, no acceleration nodes) for the RunPod GPU. `minimax_h3_i2v_wsl.json` is a variant tuned for the WSL2/RTX 4060 Ti's 16GB VRAM: `ComfyUI-sol-attn`'s `MiniMaxH3ChunkFeedForward` node chunks the MLP forward to cap peak activation memory (currently `chunks=4`), letting the same int8/NVFP4 model run at higher resolutions than it otherwise could on 16GB. `user/default/comfy.settings.json` is his personal UI settings, also tracked.
+
+`video_upscale_1080p.json` is a standalone SeedVR2 upscale + RIFE interpolation pipeline — takes an already-rendered raw video from `output/video/` and upscales it to ~1080p independent of the generation workflow that made it. Light compared to everything else here: DiT 3B fp8 (~3.2GB) + VAE (~0.5GB), both auto-download on first use (no `download-*.sh` entry needed). Tuned for the WSL2 16GB card (`blocks_to_swap=16`, `offload_device=cpu`, VAE tiling) but small enough it should also just work on the MacBook M1 — the `SeedVR2LoadDiTModel`/`SeedVR2LoadVAEModel` nodes have `cuda:0` hardcoded as the device widget though, which would need changing to `mps` there first. Full notes (flicker/ghosting mitigation, FlashVSR as an alternative): `mauro-files/docs/video-upscale-notes.md`.
 
 ## Guardrails
 
