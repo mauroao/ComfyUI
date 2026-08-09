@@ -73,11 +73,13 @@ Model formats differ across the tracked video workflows, which changes which Run
 
 ## Custom nodes
 
-Installed via `mauro-files/install-custom-nodes.sh` (clones into `custom_nodes/`, which is gitignored — never expect these to show up in `git status`): comfyui-manager, comfyui-frame-interpolation, comfyui-videohelpersuite, comfyui-wanvideowrapper, comfyui-kjnodes, comfyui-mediamixer, ComfyUI-GGUF, ComfyUI-TeaCache, ComfyUI-Easy-Use, rgthree-comfy, comfyui-impact-pack, comfyui-impact-subpack.
+Installed via `mauro-files/install-custom-nodes.sh` (clones into `custom_nodes/`, which is gitignored — never expect these to show up in `git status`): comfyui-manager, comfyui-frame-interpolation, comfyui-videohelpersuite, comfyui-wanvideowrapper, comfyui-kjnodes, comfyui-mediamixer, ComfyUI-GGUF, ComfyUI-TeaCache, ComfyUI-Easy-Use, rgthree-comfy, comfyui-impact-pack, comfyui-impact-subpack, comfyui-sol-attn, ComfyUI-SeedVR2_VideoUpscaler.
 
 The script also symlinks `mauro-files/files/nodes.py` over ComfyUI-TeaCache's own `nodes.py` — a fix for a [known upstream TeaCache issue](https://github.com/welltop-cn/ComfyUI-TeaCache/issues/178).
 
-**Pending sync item**: `custom_nodes/comfyui-wan-frame-length` is installed locally but is *not yet* in `install-custom-nodes.sh` — remember to add it there once its setup is finalized.
+`custom_nodes/comfyui-wan-frame-length` isn't cloned from anywhere — it's a hand-written local node (a single INT primitive constrained to `step=4`, for WAN's 4n+1 frame-count rule) with no upstream repo. Its source lives in `mauro-files/files/comfyui-wan-frame-length/__init__.py` and the install script symlinks it into `custom_nodes/`, same pattern as the TeaCache fix above.
+
+`ComfyUI-SeedVR2_VideoUpscaler` also needs its own `requirements.txt` installed — `mauro-files/install-pip-requirements.sh` has a line for it alongside the other per-node requirement installs.
 
 ## Tracked personal workflows (`user/default/workflows/`)
 

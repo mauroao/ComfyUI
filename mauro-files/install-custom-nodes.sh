@@ -30,9 +30,16 @@ clone_node https://github.com/rgthree/rgthree-comfy.git
 clone_node https://github.com/ltdrdata/ComfyUI-Impact-Pack comfyui-impact-pack
 clone_node https://github.com/ltdrdata/ComfyUI-Impact-Subpack.git comfyui-impact-subpack
 clone_node https://github.com/Saganaki22/ComfyUI-sol-attn.git comfyui-sol-attn
+clone_node https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git ComfyUI-SeedVR2_VideoUpscaler
 
 # temporary fix from https://github.com/welltop-cn/ComfyUI-TeaCache/issues/178
 ln -sf "$SCRIPT_DIR/files/nodes.py" "$COMFY_ROOT/custom_nodes/ComfyUI-TeaCache/nodes.py"
+
+# comfyui-wan-frame-length isn't a clonable repo — it's a hand-written local node
+# (a single INT primitive constrained to step=4 for WAN's 4n+1 frame-count rule),
+# kept in mauro-files/files/ and symlinked into place like the TeaCache fix above.
+mkdir -p "$COMFY_ROOT/custom_nodes/comfyui-wan-frame-length"
+ln -sf "$SCRIPT_DIR/files/comfyui-wan-frame-length/__init__.py" "$COMFY_ROOT/custom_nodes/comfyui-wan-frame-length/__init__.py"
 
 mkdir -p "$COMFY_ROOT/custom_nodes/comfyui-frame-interpolation/ckpts/rife"
 FILE="$COMFY_ROOT/custom_nodes/comfyui-frame-interpolation/ckpts/rife/rife47.pth"
