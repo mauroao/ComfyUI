@@ -55,6 +55,7 @@ Env vars required: `RP_TOKEN` (Civitai API token) for anything from civitai.com/
 - `download-wan21.sh` — WAN 2.1 base models + LoRAs for the `wan-2.1-*` workflows.
 - `download-wan22.sh` — WAN 2.2 base models + LoRAs (incl. SVI v2 PRO) for the `wan-2.2-*` workflows.
 - `download-minimax.sh` — MiniMax H3 VAE/diffusion/text-encoder models for `video_minimax_h3_i2v`.
+- `download-qwen-image-edit-2509.sh` — Qwen-Image-Edit-2509 fp8 diffusion model + Lightning 4-step LoRA + Qwen2.5-VL-7B fp8 text encoder + Qwen VAE, for `image/qwen_image_edit_2509.json`.
 
 ## RunPod GPU recommendations per video workflow
 
@@ -80,7 +81,7 @@ The script also symlinks `mauro-files/files/nodes.py` over ComfyUI-TeaCache's ow
 
 Tracked in git deliberately (see `.gitignore` change above), organized into subfolders by media type:
 
-- `image/`: `sdxl.json`, `sdxl_face_correction.json`
+- `image/`: `sdxl.json`, `sdxl_face_correction.json`, `qwen_image_edit_2509.json`
 - `video/`: `minimax_h3_i2v_runpod.json`, `minimax_h3_i2v_wsl.json`, `wan-2.1-T2V-768.json`, `wan-2.1-T2V-768-v2.json`, `wan-2.1-I2V-768.json`, `wan-2.2-I2V-768-fp8.json`, `wan-2.2-FLF2V-768-fp8.json`, `wan-2.2-SVI-v2.json`
 
 `minimax_h3_i2v_runpod.json` is the stock MiniMax H3 workflow (int8 diffusion model + NVFP4 text encoder, no acceleration nodes) for the RunPod GPU. `minimax_h3_i2v_wsl.json` is a variant tuned for the WSL2/RTX 4060 Ti's 16GB VRAM: `ComfyUI-sol-attn`'s `MiniMaxH3ChunkFeedForward` node chunks the MLP forward to cap peak activation memory (currently `chunks=4`), letting the same int8/NVFP4 model run at higher resolutions than it otherwise could on 16GB. `user/default/comfy.settings.json` is his personal UI settings, also tracked.
