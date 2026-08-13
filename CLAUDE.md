@@ -56,7 +56,7 @@ Env vars required: `RP_TOKEN` (Civitai API token) for anything from civitai.com/
 - `download-face-correction.sh` — face bbox detector for Impact-Pack's FaceDetailer, used by `sdxl_face_correction` workflow; depends on the SDXL checkpoint above.
 - `download-wan21.sh` — WAN 2.1 base models + LoRAs for the `wan-2.1-*` workflows.
 - `download-wan22.sh` — WAN 2.2 base models + LoRAs (incl. SVI v2 PRO) for the `wan-2.2-*` workflows.
-- `download-minimax.sh` — MiniMax H3 VAE/diffusion/text-encoder models for `video_minimax_h3_i2v`.
+- `download-minimax.sh` — MiniMax H3 VAE/diffusion/text-encoder models for `video_minimax_h3_i2v`, plus the larryvrh v4-600 EMA Turbo LoRA (drbaph's pruned-checkpoint conversion) for `video/minimax_h3_i2v_wsl_turbo.json`.
 - `download-qwen-image-edit-2509.sh` — Qwen-Image-Edit-2509 fp8 diffusion model + Lightning 4-step LoRA + Qwen2.5-VL-7B fp8 text encoder + Qwen VAE, for `image/qwen_image_edit_2509.json`.
 
 ## RunPod GPU recommendations per video workflow
@@ -73,7 +73,9 @@ Model formats differ across the tracked video workflows, which changes which Run
 
 ## Custom nodes
 
-Installed via `mauro-files/install-custom-nodes.sh` (clones into `custom_nodes/`, which is gitignored — never expect these to show up in `git status`): comfyui-manager, comfyui-frame-interpolation, comfyui-videohelpersuite, comfyui-wanvideowrapper, comfyui-kjnodes, comfyui-mediamixer, ComfyUI-GGUF, ComfyUI-TeaCache, ComfyUI-Easy-Use, rgthree-comfy, comfyui-impact-pack, comfyui-impact-subpack, comfyui-sol-attn, ComfyUI-SeedVR2_VideoUpscaler.
+Installed via `mauro-files/install-custom-nodes.sh` (clones into `custom_nodes/`, which is gitignored — never expect these to show up in `git status`): comfyui-manager, comfyui-frame-interpolation, comfyui-videohelpersuite, comfyui-wanvideowrapper, comfyui-kjnodes, comfyui-mediamixer, ComfyUI-GGUF, ComfyUI-TeaCache, ComfyUI-Easy-Use, rgthree-comfy, comfyui-impact-pack, comfyui-impact-subpack, comfyui-sol-attn, ComfyUI-SeedVR2_VideoUpscaler, ComfyUI-MiniMax-H3-Turbo.
+
+`ComfyUI-MiniMax-H3-Turbo` (Larryvrh) supplies the `MiniMaxH3TurboLoRA` and `MiniMaxH3TurboSampler` nodes used by `video/minimax_h3_i2v_wsl_turbo.json` (see below) — pure Python, no extra pip deps (`dependencies = []` in its `pyproject.toml`), so nothing beyond the git clone is needed in `.venv`.
 
 The script also symlinks `mauro-files/files/nodes.py` over ComfyUI-TeaCache's own `nodes.py` — a fix for a [known upstream TeaCache issue](https://github.com/welltop-cn/ComfyUI-TeaCache/issues/178).
 
@@ -86,9 +88,11 @@ The script also symlinks `mauro-files/files/nodes.py` over ComfyUI-TeaCache's ow
 Tracked in git deliberately (see `.gitignore` change above), organized into subfolders by media type:
 
 - `image/`: `sdxl.json`, `sdxl_face_correction.json`, `qwen_image_edit_2509.json`
-- `video/`: `minimax_h3_i2v_runpod.json`, `minimax_h3_i2v_wsl.json`, `wan-2.1-T2V-768.json`, `wan-2.1-T2V-768-v2.json`, `wan-2.1-I2V-768.json`, `wan-2.2-I2V-768-fp8.json`, `wan-2.2-FLF2V-768-fp8.json`, `wan-2.2-SVI-v2.json`, `video_upscale_1080p.json`
+- `video/`: `minimax_h3_i2v_runpod.json`, `minimax_h3_i2v_wsl.json`, `minimax_h3_i2v_wsl_turbo.json`, `wan-2.1-T2V-768.json`, `wan-2.1-T2V-768-v2.json`, `wan-2.1-I2V-768.json`, `wan-2.2-I2V-768-fp8.json`, `wan-2.2-FLF2V-768-fp8.json`, `wan-2.2-SVI-v2.json`, `video_upscale_1080p.json`
 
 `minimax_h3_i2v_runpod.json` is the stock MiniMax H3 workflow (int8 diffusion model + NVFP4 text encoder, no acceleration nodes) for the RunPod GPU. `minimax_h3_i2v_wsl.json` is a variant tuned for the WSL2/RTX 4060 Ti's 16GB VRAM: `ComfyUI-sol-attn`'s `MiniMaxH3ChunkFeedForward` node chunks the MLP forward to cap peak activation memory (currently `chunks=4`), letting the same int8/NVFP4 model run at higher resolutions than it otherwise could on 16GB. `user/default/comfy.settings.json` is his personal UI settings, also tracked.
+
+`minimax_h3_i2v_wsl_turbo.json` is `minimax_h3_i2v_wsl.json` plus the larryvrh v4-600 EMA Turbo LoRA (via `ComfyUI-MiniMax-H3-Turbo`'s `MiniMaxH3TurboLoRA`/`MiniMaxH3TurboSampler` nodes, inserted after the existing `MiniMaxH3ChunkFeedForward`), steps dropped 16→8. Chosen after comparing the available MiniMax H3 acceleration LoRAs (larryvrh, lightx2v/ModelTC, joyfox) against an independent quantitative benchmark ([jo-nike/h3-turbo-eval](https://jo-nike.github.io/h3-turbo-eval/)): larryvrh's EMA LoRA at 8 steps tracked the 20-step baseline closely (~0.95× normalized detail, same "take" when combined with SageAttention), while lightx2v v0.1 measurably lost fine detail and was jitterier on low-motion shots — exactly the slow/static-camera style of these prompts. Confirmed working by Mauro on 2026-08-12 — good quality, meaningfully faster than the 16-step baseline. `low_vram` is left off (bypass mode, sharper) on the LoRA node; switch it on if a shot OOMs.
 
 `video_upscale_1080p.json` is a standalone SeedVR2 upscale + RIFE interpolation pipeline — takes an already-rendered raw video from `output/video/` and upscales it to ~1080p independent of the generation workflow that made it. Light compared to everything else here: DiT 3B fp8 (~3.2GB) + VAE (~0.5GB), both auto-download on first use (no `download-*.sh` entry needed). Tuned for the WSL2 16GB card (`blocks_to_swap=16`, `offload_device=cpu`, VAE tiling) but small enough it should also just work on the MacBook M1 — the `SeedVR2LoadDiTModel`/`SeedVR2LoadVAEModel` nodes have `cuda:0` hardcoded as the device widget though, which would need changing to `mps` there first. Full notes (flicker/ghosting mitigation, FlashVSR as an alternative): `mauro-files/docs/video-upscale-notes.md`.
 
