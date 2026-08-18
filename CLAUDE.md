@@ -58,6 +58,7 @@ Env vars required: `RP_TOKEN` (Civitai API token) for anything from civitai.com/
 - `download-wan22.sh` — WAN 2.2 base models + LoRAs (incl. SVI v2 PRO) for the `wan-2.2-*` workflows.
 - `download-minimax.sh` — MiniMax H3 VAE/diffusion/text-encoder models for `video_minimax_h3_i2v`, plus the larryvrh v4-600 EMA Turbo LoRA (drbaph's pruned-checkpoint conversion) for `video/minimax_h3_i2v_wsl_turbo.json`.
 - `download-qwen-image-edit-2509.sh` — Qwen-Image-Edit-2509 fp8 diffusion model + Lightning 4-step LoRA + Qwen2.5-VL-7B fp8 text encoder + Qwen VAE, for `image/qwen_image_edit_2509.json`.
+- `download-ace-step.sh` — ACE-Step 1.5 Turbo all-in-one checkpoint (model + text encoder + VAE in one file), for `audio/ace_step_1_5_m2m_retake.json`.
 
 ## RunPod GPU recommendations per video workflow
 
@@ -89,12 +90,15 @@ Tracked in git deliberately (see `.gitignore` change above), organized into subf
 
 - `image/`: `sdxl.json`, `sdxl_face_correction.json`, `qwen_image_edit_2509.json`
 - `video/`: `minimax_h3_i2v_runpod.json`, `minimax_h3_i2v_wsl.json`, `minimax_h3_i2v_wsl_turbo.json`, `wan-2.1-T2V-768.json`, `wan-2.1-T2V-768-v2.json`, `wan-2.1-I2V-768.json`, `wan-2.2-I2V-768-fp8.json`, `wan-2.2-FLF2V-768-fp8.json`, `wan-2.2-SVI-v2.json`, `video_upscale_1080p.json`
+- `audio/`: `ace_step_1_5_m2m_retake.json`
 
 `minimax_h3_i2v_runpod.json` is the stock MiniMax H3 workflow (int8 diffusion model + NVFP4 text encoder, no acceleration nodes) for the RunPod GPU. `minimax_h3_i2v_wsl.json` is a variant tuned for the WSL2/RTX 4060 Ti's 16GB VRAM: `ComfyUI-sol-attn`'s `MiniMaxH3ChunkFeedForward` node chunks the MLP forward to cap peak activation memory (currently `chunks=4`), letting the same int8/NVFP4 model run at higher resolutions than it otherwise could on 16GB. `user/default/comfy.settings.json` is his personal UI settings, also tracked.
 
 `minimax_h3_i2v_wsl_turbo.json` is `minimax_h3_i2v_wsl.json` plus the larryvrh v4-600 EMA Turbo LoRA (via `ComfyUI-MiniMax-H3-Turbo`'s `MiniMaxH3TurboLoRA`/`MiniMaxH3TurboSampler` nodes, inserted after the existing `MiniMaxH3ChunkFeedForward`), steps dropped 16→8. Chosen after comparing the available MiniMax H3 acceleration LoRAs (larryvrh, lightx2v/ModelTC, joyfox) against an independent quantitative benchmark ([jo-nike/h3-turbo-eval](https://jo-nike.github.io/h3-turbo-eval/)): larryvrh's EMA LoRA at 8 steps tracked the 20-step baseline closely (~0.95× normalized detail, same "take" when combined with SageAttention), while lightx2v v0.1 measurably lost fine detail and was jitterier on low-motion shots — exactly the slow/static-camera style of these prompts. Confirmed working by Mauro on 2026-08-12 — good quality, meaningfully faster than the 16-step baseline. `low_vram` is left off (bypass mode, sharper) on the LoRA node; switch it on if a shot OOMs.
 
 `video_upscale_1080p.json` is a standalone SeedVR2 upscale + RIFE interpolation pipeline — takes an already-rendered raw video from `output/video/` and upscales it to ~1080p independent of the generation workflow that made it. Light compared to everything else here: DiT 3B fp8 (~3.2GB) + VAE (~0.5GB), both auto-download on first use (no `download-*.sh` entry needed). Tuned for the WSL2 16GB card (`blocks_to_swap=16`, `offload_device=cpu`, VAE tiling) but small enough it should also just work on the MacBook M1 — the `SeedVR2LoadDiTModel`/`SeedVR2LoadVAEModel` nodes have `cuda:0` hardcoded as the device widget though, which would need changing to `mps` there first. Full notes (flicker/ghosting mitigation, FlashVSR as an alternative): `mauro-files/docs/video-upscale-notes.md`.
+
+`ace_step_1_5_m2m_retake.json` is an audio-to-audio ("retake"/variation) pipeline built on ACE-Step 1.5: `LoadAudio` → `VAEEncodeAudio` encodes an existing instrumental MP3 into the ACE-Step latent space (replacing the usual empty-latent start), then `KSampler` only partially denoises it (`denoise=0.4` by default) guided by a `TextEncodeAceStepAudio1.5` prompt, so the output stays close in structure/rhythm/key to the source while picking up the requested changes — same idea as Suno's "create variation from audio". Manually adapted from ComfyUI's official `audio_ace_step_1_5_checkpoint` template (`comfyui_workflow_templates_json` package), since the shipped ACE-Step 1.5 templates are text-to-audio only — no img2img/retake example exists upstream yet. Uses the single-file `ace_step_1.5_turbo_aio.safetensors` checkpoint (model+text encoder+VAE bundled), downloaded via `download-ace-step.sh`. The turbo checkpoint is distilled for an 8-step full schedule, so partial-denoise quality at very low `denoise` may be inconsistent — untested on Mauro's hardware as of 2026-08-16, `steps`/`denoise` are starting points to tune.
 
 ## Guardrails
 
