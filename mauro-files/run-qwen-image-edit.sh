@@ -1,6 +1,6 @@
 #!/bin/bash
-# Tuned for image/qwen_image_edit_2509.json on 16GB cards: the fp8 diffusion model
-# (~19GB on disk) plus the fp8 text encoder (~8GB loaded) don't fit together in VRAM
+# Tuned for image/qwen_image_edit_2509.json and image/qwen_image_edit_2511.json on 16GB
+# cards (both are the same 20B MMDiT): the fp8 diffusion model (~19GB on disk) plus the fp8 text encoder (~8GB loaded) don't fit together in VRAM
 # at once, and PyTorch's allocator can fragment badly when they're loaded back to back.
 #
 # - --disable-cuda-malloc forces ComfyUI onto PyTorch's native CUDA allocator instead
