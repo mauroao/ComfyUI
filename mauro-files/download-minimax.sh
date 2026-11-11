@@ -13,6 +13,7 @@ download_file "minimax_h3_audio_vae_fp32.safetensors" "https://huggingface.co/Co
 # Diffusion Models
 cd "$COMFY_ROOT/models/diffusion_models/"
 download_file "minimax_h3_fl2va_pruned_int8_convrot.safetensors" "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors"
+download_file "minimax_h3_ref2va_pruned_int8_convrot.safetensors" "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors"
 
 # Text Encoders
 cd "$COMFY_ROOT/models/text_encoders/"
@@ -21,6 +22,9 @@ download_file "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors" "https://huggingfac
 # Turbo LoRA (larryvrh v4-600 EMA, drbaph's pruned-checkpoint conversion) - for video/minimax_h3_i2v_wsl_turbo.json
 cd "$COMFY_ROOT/models/loras/"
 download_file "minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors" "https://huggingface.co/drbaph/MiniMax-H3-Turbo-Lora-ComfyUI/resolve/main/minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors"
+
+# Official ref2v Turbo LoRA (4 steps) - for video/minimax_h3_ref2va_wsl.json
+download_file "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors" "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/loras/minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors"
 
 # Bounce LoRA (Civitai) - for video/minimax_h3_i2v_wsl_turbo.json
 download_file_v2 "minimax-lora-bounceV07-000230_Intense.safetensors" "https://civitai.red/api/download/models/3242184?fileId=3124773&token=${RP_TOKEN}"
