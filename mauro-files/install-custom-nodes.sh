@@ -32,6 +32,8 @@ clone_node https://github.com/ltdrdata/ComfyUI-Impact-Subpack.git comfyui-impact
 clone_node https://github.com/Saganaki22/ComfyUI-sol-attn.git comfyui-sol-attn
 clone_node https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git ComfyUI-SeedVR2_VideoUpscaler
 clone_node https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo.git ComfyUI-MiniMax-H3-Turbo
+clone_node https://github.com/Fannovel16/comfyui_controlnet_aux.git comfyui_controlnet_aux
+clone_node https://github.com/andreszs/ComfyUI-OpenPose-Studio.git ComfyUI-OpenPose-Studio
 
 # temporary fix from https://github.com/welltop-cn/ComfyUI-TeaCache/issues/178
 ln -sf "$SCRIPT_DIR/files/nodes.py" "$COMFY_ROOT/custom_nodes/ComfyUI-TeaCache/nodes.py"
