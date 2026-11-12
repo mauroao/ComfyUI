@@ -30,6 +30,7 @@ download_file "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors" "http
 download_file_v2 "minimax-lora-bounceV07-000230_Intense.safetensors" "https://civitai.red/api/download/models/3242184?fileId=3124773&token=${RP_TOKEN}"
 download_file_v2 "minimax-lora-bounceV07_fl2va-000230_Intense.safetensors" "https://civitai.red/api/download/models/3258590?fileId=3141848&token=${RP_TOKEN}"
 download_file_v2 "minimax-lora-titfuck_sideview-h3-7030.safetensors" "https://civitai.red/api/download/models/3289602?fileId=3174021&token=${RP_TOKEN}"
+download_file_v2 "minimax-lora-H3_slop_bounce.safetensors" "https://civitai.red/api/download/models/3250381?fileId=3137071&token=${RP_TOKEN}"
 
 # Upscale Model
 cd "$COMFY_ROOT/models/upscale_models/"
