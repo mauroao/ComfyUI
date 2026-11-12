@@ -101,7 +101,7 @@
         0.6,
         0.9,
         0,
-        "Write a straightforward caption for this image within 60 words. If there is a person/character in the image you must refer to them as the woman. Do NOT include information about people/characters that cannot be changed (like ethnicity, gender, etc), but do still include changeable attributes (like hair style). Do NOT describe her body, body shape, breast size, skin or face. Describe the scene, her pose and expression, her clothing (or lack of it), hairstyle, makeup and accessories. Include information about lighting. Include information about camera angle. Do NOT mention the image's resolution.",
+        "Write a straightforward caption for this image within 60 words. If there is a person/character in the image you must refer to them as the woman. Do NOT include information about people/characters that cannot be changed (like ethnicity, gender, etc), but do still include changeable attributes (like hair style). Do NOT describe her body, body shape, breast size, skin or face. Do NOT mention her hair color or any body piercings. Describe the scene, her pose and expression, her clothing (or lack of it), hairstyle, makeup and accessories. Include information about lighting. Include information about camera angle. Do NOT mention the image's resolution.",
         "Keep in Memory"
       ]
     },
