@@ -34,9 +34,13 @@ clone_node https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.git ComfyUI-See
 clone_node https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo.git ComfyUI-MiniMax-H3-Turbo
 clone_node https://github.com/Fannovel16/comfyui_controlnet_aux.git comfyui_controlnet_aux
 clone_node https://github.com/andreszs/ComfyUI-OpenPose-Studio.git ComfyUI-OpenPose-Studio
+clone_node https://github.com/1038lab/ComfyUI-JoyCaption.git ComfyUI-JoyCaption
 
 # temporary fix from https://github.com/welltop-cn/ComfyUI-TeaCache/issues/178
 ln -sf "$SCRIPT_DIR/files/nodes.py" "$COMFY_ROOT/custom_nodes/ComfyUI-TeaCache/nodes.py"
+
+# ComfyUI-JoyCaption crashes on transformers 5 (image processor size is a SizeDict, not a dict)
+ln -sf "$SCRIPT_DIR/files/ComfyUI-JoyCaption/JC.py" "$COMFY_ROOT/custom_nodes/ComfyUI-JoyCaption/JC.py"
 
 # comfyui-wan-frame-length isn't a clonable repo — it's a hand-written local node
 # (a single INT primitive constrained to step=4 for WAN's 4n+1 frame-count rule),
