@@ -96,7 +96,7 @@ The script also symlinks `mauro-files/files/nodes.py` over ComfyUI-TeaCache's ow
 Tracked in git deliberately (see `.gitignore` change above), organized into subfolders by media type:
 
 - `image/`: `sdxl.json`, `sdxl_face_correction.json`, `qwen_image_edit_2509.json`, `qwen_image_edit_2511.json`, `qwen_image_edit_2511_venera_lora.json`, `qwen_image_edit_2511_venera_lora_pose.json`, `pose_from_text.json`
-- `video/`: `minimax_h3_i2v_runpod.json`, `minimax_h3_i2v_wsl.json`, `minimax_h3_i2v_wsl_turbo.json`, `minimax_h3_flf_wsl_turbo.json`, `minimax_h3_ref2va_wsl.json`, `wan-2.1-T2V-768.json`, `wan-2.1-T2V-768-v2.json`, `wan-2.1-I2V-768.json`, `wan-2.2-I2V-768-fp8.json`, `wan-2.2-FLF2V-768-fp8.json`, `wan-2.2-SVI-v2.json`, `video_upscale_1080p.json`
+- `video/`: `minimax_h3_i2v_runpod.json`, `minimax_h3_i2v_wsl.json`, `minimax_h3_i2v_wsl_turbo.json`, `minimax_h3_flf_wsl_turbo.json`, `minimax_h3_ref2va_wsl.json`, `minimax_h3_i2v_wsl_character_lora.json`, `wan-2.1-T2V-768.json`, `wan-2.1-T2V-768-v2.json`, `wan-2.1-I2V-768.json`, `wan-2.2-I2V-768-fp8.json`, `wan-2.2-FLF2V-768-fp8.json`, `wan-2.2-SVI-v2.json`, `video_upscale_1080p.json`
 - `audio/`: `ace_step_1_5_m2m_retake.json`
 - `utils/`: `joycaption_dataset_captions.json`
 
@@ -114,6 +114,13 @@ Tracked in git deliberately (see `.gitignore` change above), organized into subf
 - A bypassed `LoraLoaderModelOnly` at 0.5 lets you try the fl2va-trained Civitai LoRAs; how well they work on ref2va is unknown.
 - Filename counter, raw `SaveVideo` and the bypassed Upscale group are copied from the turbo workflow. Launch with `run-minimax.sh`.
 - Untested on the 4060 Ti as of 2026-11-10. If it OOMs, lower the duration first; `ref_image_size=max` is much slower.
+
+`minimax_h3_i2v_wsl_character_lora.json` is the quality-first i2va variant with Mauro's own character LoRA `venera_h3_i2v_v1.safetensors` (ai-toolkit, rank 16, trigger `s3xyv3n3r4`, trained on the fl2va model; all 208 LoRA patches attach cleanly). It is built from the flat ref2va graph, not the turbo subgraph:
+- `minimax_h3_fl2va_pruned_int8_convrot` → `MiniMaxH3ChunkFeedForward` → character LoRA at 1.0 → a bypassed optional motion/concept LoRA (~0.6) → `BasicGuider`. There is no turbo LoRA, because distilled turbo LoRAs dilute the character LoRA and the keyframe, and the late frames are where drift shows up.
+- `res_multistep`/`simple`, 25 steps, start image as `first_frame`. The canvas comes from `ImageScaleToTotalPixels` (0.4 MP, steps of 32) + `GetImageSize`, so it follows the photo's aspect ratio and frame 0 is never stretched.
+- The prompt names the subject `s3xyv3n3r4` at the start and the end, and leaves out permanent traits (the captions left them out too, so they live in the trigger).
+- No upscale or interpolation by design: Mauro does that later with `video_upscale_1080p.json`. Launch with `run-minimax.sh`. Untested as of 2026-11-12.
+- Community NSFW checkpoints checked on 2026-11-12: H3 Eros Max (Civitai 2851079, turbo-merged fl2va/Omni hybrid, int8 ~20.5–22GB) and DaSiWa (Civitai 2877206, ref2va merge, int8 20.5GB / w6a8 16.4GB / w4a8 12.3GB). Both are the same size class as the stock int8 model, so they'd load the same way with dynamic VRAM offload. Neither is needed for NSFW: base H3 is already largely uncensored. Both are merges of other LoRAs, so the venera LoRA, trained on stock fl2va, may hold identity less well on them.
 
 `qwen_image_edit_2511.json` is the multi-image (v2) counterpart of `qwen_image_edit_2509.json`: same subgraph (renamed `Image Edit (Qwen 2511)`), with the Qwen-Image-Edit-2511 `fp8mixed` model + 2511 Lightning LoRA and a second `LoadImage` wired into the subgraph's `image2` input (`image3` is still free). 2511 was picked over 2509 for its better multi-input/identity consistency, and over Qwen-Image-2.1 (Sep 2026, 7B, up to 10 refs) because 2.1 needs an upstream merge newer than this fork's base plus a new text encoder. Things to know: Picture 1 alone defines the output size (it's the only one VAE-encoded into the starting latent); every input is internally rescaled to ~1MP by `TextEncodeQwenImageEditPlus`, so downscaling Picture 2 doesn't save VRAM; prompts should refer to inputs as "Picture 1"/"Picture 2", the labels that node injects. Each extra reference adds ~4k tokens (~40–50% slower), not a weight-size change, so `run-qwen-image-edit.sh` is reused as is. ComfyUI auto-detects 2511 from the checkpoint (`__index_timestep_zero__` key in `comfy/model_detection.py`), no extra reference-method node needed.
 
